@@ -9,10 +9,7 @@ export const analyzeResume = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "Resume required" });
     }
-    const filepath = req.file.path
-
-    const fileBuffer = await fs.promises.readFile(filepath)
-    const uint8Array = new Uint8Array(fileBuffer)
+const uint8Array = new Uint8Array(req.file.buffer)
 
     const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
 
@@ -59,7 +56,6 @@ Return strictly JSON:
 
     const parsed = JSON.parse(aiResponse);
 
-    fs.unlinkSync(filepath)
 
 
     res.json({
@@ -73,9 +69,6 @@ Return strictly JSON:
   } catch (error) {
     console.error(error);
 
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
 
     return res.status(500).json({ message: error.message });
   }
